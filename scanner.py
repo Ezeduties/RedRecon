@@ -64,19 +64,32 @@ class Scanner:
 
         scan_arguments = "-Pn -sV -O"
 
+        # Perform the scan
         self.nm.scan(hosts=target, arguments=scan_arguments)
 
+        # Initialize the result dictionary
         result = {
             "host": target,
             "hostname": "",
-            "state": "",
+            "state": "down",
+            "reason": "Host unreachable or did not respond",
             "os": "Unknown",
             "ports": []
         }
 
-        # ---------------------------------------------
-        # Host Information
-        # ---------------------------------------------
+        # -------------------------------------------------
+        # Verify the host exists in Nmap's results
+        # -------------------------------------------------
+
+        if target not in self.nm.all_hosts():
+
+            print(f"\n[-] Host {target} did not respond to the scan.")
+
+            return result
+
+         # -------------------------------------------------
+         # Host Information
+         # -------------------------------------------------
 
         result["hostname"] = self.nm[target].hostname()
         result["state"] = self.nm[target].state()
