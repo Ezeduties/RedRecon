@@ -17,7 +17,7 @@ from banner import success
 from banner import warning
 from banner import error
 
-from validator import is_valid_ip
+from validator import is_valid_ip, validate_targets
 from scanner import Scanner
 from reports import ReportGenerator
 
@@ -112,6 +112,89 @@ def scan_single_host():
     input("\nPress ENTER to return to the menu...")
 
 # ---------------------------------------------------------
+# Multiple Host Scan
+# ---------------------------------------------------------
+
+def scan_multiple_hosts():
+    """
+    Scan multiple hosts entered by the user.
+    """
+
+    clear_screen()
+
+    print_banner()
+
+    print("\n" + "=" * 60)
+    print("MULTIPLE HOST SCAN")
+    print("=" * 60)
+
+    user_input = input(
+        "\nEnter IP addresses separated by commas:\n\n> "
+    ).strip()
+
+    valid_targets, invalid_targets = validate_targets(user_input)
+
+    # ---------------------------------------------
+    # Display Invalid Targets
+    # ---------------------------------------------
+
+    if invalid_targets:
+
+        warning("\nInvalid Targets:")
+
+        for target in invalid_targets:
+
+            print(f"   - {target}")
+
+    # ---------------------------------------------
+    # Ensure we have valid targets
+    # ---------------------------------------------
+
+    if not valid_targets:
+
+        error("\nNo valid targets to scan.")
+
+        input("\nPress ENTER to return...")
+
+        return
+
+    success(f"\n{len(valid_targets)} valid target(s) found.")
+
+    scanner = Scanner()
+
+    all_results = []
+
+    print()
+
+    # ---------------------------------------------
+    # Scan each target
+    # ---------------------------------------------
+
+    for index, target in enumerate(valid_targets, start=1):
+
+        print(f"[{index}/{len(valid_targets)}] Scanning {target}...")
+
+        result = scanner.scan_host(target)
+
+        all_results.append(result)
+
+    success("\nMultiple host scan completed.")
+
+    # ---------------------------------------------
+    # Temporary Summary
+    # ---------------------------------------------
+
+    print("\n" + "=" * 60)
+    print("SCAN SUMMARY")
+    print("=" * 60)
+
+    print(f"Hosts Scanned : {len(all_results)}")
+
+    print("=" * 60)
+
+    input("\nPress ENTER to return to the menu...")
+
+# ---------------------------------------------------------
 # Display Menu
 # ---------------------------------------------------------
 
@@ -156,8 +239,7 @@ def main():
 
         elif choice == "2":
 
-            print("\nMultiple Host Scanner (Coming in Part 3)")
-            input("\nPress ENTER to continue...")
+            scan_multiple_hosts()
 
         elif choice == "3":
 

@@ -4,13 +4,13 @@ RedRecon Report Module
 
 Generates professional reports from scan results.
 
-Supported Formats:
-    - CSV
-    - JSON
-    - TXT
+Supported Formats
+    • CSV
+    • JSON
+    • TXT
 
 Author : Ezeduties
-Version: 1.0
+Version: 1.1.0
 =========================================================
 """
 
@@ -29,18 +29,22 @@ from utils import (
     create_reports_directory,
     get_timestamp,
     save_text_file,
-    print_line
+    print_line,
 )
 
-
 # --------------------------------------------------------
-# Report Generator Class
+# Report Generator
 # --------------------------------------------------------
 
 class ReportGenerator:
     """
-    Generates professional reports from
-    RedRecon scan results.
+    Generates reports from RedRecon scan results.
+
+    Supports:
+
+        • Single Host Scan
+
+        • Multiple Host Scan
     """
 
     # ----------------------------------------------------
@@ -48,44 +52,45 @@ class ReportGenerator:
     # ----------------------------------------------------
 
     def __init__(self, scan_results):
-        """
-        Initialize the Report Generator.
 
-        Parameters
-        ----------
-        scan_results : dict
-            Dictionary returned by Scanner.
-        """
+        # Always store results as a list
 
-        self.scan_results = scan_results
+        if isinstance(scan_results, dict):
+
+            self.scan_results = [scan_results]
+
+        else:
+
+            self.scan_results = scan_results
+
         self.reports_directory = create_reports_directory()
+
         self.timestamp = get_timestamp()
 
     # ----------------------------------------------------
-    # Save CSV Report
+    # CSV REPORT
     # ----------------------------------------------------
 
     def save_csv(self):
-        """
-        Save scan results to CSV format.
 
-        Returns
-        -------
-        Path
-            CSV report path.
-        """
+        filename = (
+            self.reports_directory /
+            f"scan_{self.timestamp}.csv"
+        )
 
-        filename = self.reports_directory / f"scan_{self.timestamp}.csv"
-
-        with open(filename, "w", newline="", encoding="utf-8") as csvfile:
+        with open(
+            filename,
+            "w",
+            newline="",
+            encoding="utf-8"
+        ) as csvfile:
 
             writer = csv.writer(csvfile)
 
-            # CSV Header
             writer.writerow([
                 "IP Address",
                 "Hostname",
-                "Host State",
+                "State",
                 "Operating System",
                 "Port",
                 "Protocol",
@@ -95,65 +100,94 @@ class ReportGenerator:
                 "Version"
             ])
 
-            ip = self.scan_results.get("ip", "")
-            hostname = self.scan_results.get("hostname", "")
-            state = self.scan_results.get("state", "")
-            os_name = self.scan_results.get("os", "")
+            # -----------------------------------------
+            # Every scanned host
+            # -----------------------------------------
 
-            ports = self.scan_results.get("ports", [])
+            for host in self.scan_results:
 
-            # If no ports were found
-            if not ports:
+                ip = host.get("ip", "")
 
-                writer.writerow([
-                    ip,
-                    hostname,
-                    state,
-                    os_name,
-                    "",
-                    "",
-                    "",
-                    "",
-                    "",
-                    ""
-                ])
+                hostname = host.get("hostname", "")
 
-            else:
+                state = host.get("state", "")
 
-                for port in ports:
+                os_name = host.get("os", "")
+
+                ports = host.get("ports", [])
+
+                # -------------------------------------
+                # Host with no open ports
+                # -------------------------------------
+
+                if not ports:
 
                     writer.writerow([
                         ip,
                         hostname,
                         state,
                         os_name,
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        ""
+                    ])
+
+                    continue
+
+                # -------------------------------------
+                # Host with open ports
+                # -------------------------------------
+
+                for port in ports:
+
+                    writer.writerow([
+
+                        ip,
+
+                        hostname,
+
+                        state,
+
+                        os_name,
+
                         port.get("port", ""),
+
                         port.get("protocol", ""),
+
                         port.get("state", ""),
+
                         port.get("service", ""),
+
                         port.get("product", ""),
+
                         port.get("version", "")
+
                     ])
 
         return filename
 
     # ----------------------------------------------------
-    # Save JSON Report
+    # JSON REPORT
     # ----------------------------------------------------
 
     def save_json(self):
         """
         Save scan results as JSON.
-
-        Returns
-        -------
-        Path
-            JSON report path.
         """
 
-        filename = self.reports_directory / f"scan_{self.timestamp}.json"
+        filename = (
+            self.reports_directory /
+            f"scan_{self.timestamp}.json"
+        )
 
-        with open(filename, "w", encoding="utf-8") as jsonfile:
+        with open(
+            filename,
+            "w",
+            encoding="utf-8"
+        ) as jsonfile:
 
             json.dump(
                 self.scan_results,
@@ -162,18 +196,15 @@ class ReportGenerator:
             )
 
         return filename
+
+
     # ----------------------------------------------------
-    # Save Text Report
+    # TEXT REPORT
     # ----------------------------------------------------
 
     def save_text(self):
         """
-        Save scan results as a human-readable text report.
-
-        Returns
-        -------
-        Path
-            Text report path.
+        Save a human-readable text report.
         """
 
         report = []
@@ -181,37 +212,44 @@ class ReportGenerator:
         report.append("=" * 60)
         report.append("REDRECON SCAN REPORT")
         report.append("=" * 60)
-
-        report.append(f"IP Address : {self.scan_results.get('ip','')}")
-        report.append(f"Hostname   : {self.scan_results.get('hostname','')}")
-        report.append(f"State      : {self.scan_results.get('state','')}")
-        report.append(f"OS         : {self.scan_results.get('os','')}")
         report.append("")
 
-        report.append("=" * 60)
-        report.append("OPEN PORTS")
-        report.append("=" * 60)
+        for host in self.scan_results:
 
-        ports = self.scan_results.get("ports", [])
+            report.append(f"IP Address : {host.get('ip', '')}")
+            report.append(f"Hostname   : {host.get('hostname', '')}")
+            report.append(f"State      : {host.get('state', '')}")
+            report.append(f"OS         : {host.get('os', '')}")
 
-        if not ports:
+            report.append("")
+            report.append("-" * 60)
+            report.append("OPEN PORTS")
+            report.append("-" * 60)
 
-            report.append("No open ports discovered.")
+            ports = host.get("ports", [])
 
-        else:
+            if not ports:
 
-            for port in ports:
+                report.append("No open ports discovered.")
 
-                line = (
-                    f"{port.get('port',''):>5}/"
-                    f"{port.get('protocol','')}  "
-                    f"{port.get('state',''):8} "
-                    f"{port.get('service',''):15} "
-                    f"{port.get('product',''):20} "
-                    f"{port.get('version','')}"
-                )
+            else:
 
-                report.append(line)
+                for port in ports:
+
+                    line = (
+                        f"{port.get('port',''):>5}/"
+                        f"{port.get('protocol','')}  "
+                        f"{port.get('state',''):8} "
+                        f"{port.get('service',''):15} "
+                        f"{port.get('product',''):20} "
+                        f"{port.get('version','')}"
+                    )
+
+                    report.append(line)
+
+            report.append("")
+            report.append("=" * 60)
+            report.append("")
 
         report_text = "\n".join(report)
 
@@ -220,7 +258,7 @@ class ReportGenerator:
         return save_text_file(filename, report_text)
 
     # ----------------------------------------------------
-    # Export Everything
+    # EXPORT ALL REPORTS
     # ----------------------------------------------------
 
     def export_all(self):
@@ -230,7 +268,7 @@ class ReportGenerator:
         Returns
         -------
         dict
-            Dictionary containing all report paths.
+            Dictionary containing generated report paths.
         """
 
         return {
@@ -250,48 +288,82 @@ class ReportGenerator:
 
 if __name__ == "__main__":
 
-    sample_scan = {
+    sample_scan = [
 
-        "ip": "10.0.9.5",
+        {
 
-        "hostname": "Metasploitable2",
+            "ip": "10.0.9.5",
 
-        "state": "up",
+            "hostname": "Metasploitable2",
 
-        "os": "Linux 2.6.9",
+            "state": "up",
 
-        "ports": [
+            "os": "Linux 2.6.9",
 
-            {
-                "port": 21,
-                "protocol": "tcp",
-                "state": "open",
-                "service": "ftp",
-                "product": "vsftpd",
-                "version": "2.3.4"
-            },
+            "ports": [
 
-            {
-                "port": 22,
-                "protocol": "tcp",
-                "state": "open",
-                "service": "ssh",
-                "product": "OpenSSH",
-                "version": "4.7p1"
-            }
+                {
 
-        ]
-    }
+                    "port": 21,
+
+                    "protocol": "tcp",
+
+                    "state": "open",
+
+                    "service": "ftp",
+
+                    "product": "vsftpd",
+
+                    "version": "2.3.4"
+
+                },
+
+                {
+
+                    "port": 22,
+
+                    "protocol": "tcp",
+
+                    "state": "open",
+
+                    "service": "ssh",
+
+                    "product": "OpenSSH",
+
+                    "version": "4.7p1"
+
+                }
+
+            ]
+
+        },
+
+        {
+
+            "ip": "10.0.9.6",
+
+            "hostname": "",
+
+            "state": "down",
+
+            "os": "Unknown",
+
+            "ports": []
+
+        }
+
+    ]
 
     report = ReportGenerator(sample_scan)
 
-    files = report.export_all()
+    reports = report.export_all()
 
     print_line()
 
     print("Reports Generated Successfully\n")
 
-    for report_type, path in files.items():
+    for report_type, path in reports.items():
+
         print(f"{report_type.upper():5} -> {path}")
 
     print_line()
