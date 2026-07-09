@@ -36,7 +36,7 @@ init(autoreset=True)
 
 VERSION = "1.0"
 
-AUTHOR = "Jossy Jos"
+AUTHOR = "Ezeduties"
 
 # ----------------------------------------------------------
 # Banner
