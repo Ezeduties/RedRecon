@@ -134,9 +134,9 @@ def scan_multiple_hosts():
 
     valid_targets, invalid_targets = validate_targets(user_input)
 
-    # ---------------------------------------------
-    # Display Invalid Targets
-    # ---------------------------------------------
+    # ------------------------------------------------
+    # Display invalid targets
+    # ------------------------------------------------
 
     if invalid_targets:
 
@@ -146,9 +146,9 @@ def scan_multiple_hosts():
 
             print(f"   - {target}")
 
-    # ---------------------------------------------
+    # ------------------------------------------------
     # Ensure we have valid targets
-    # ---------------------------------------------
+    # ------------------------------------------------
 
     if not valid_targets:
 
@@ -164,31 +164,70 @@ def scan_multiple_hosts():
 
     all_results = []
 
+    hosts_up = 0
+
+    hosts_down = 0
+
     print()
 
-    # ---------------------------------------------
+    # ------------------------------------------------
     # Scan each target
-    # ---------------------------------------------
+    # ------------------------------------------------
 
     for index, target in enumerate(valid_targets, start=1):
 
         print(f"[{index}/{len(valid_targets)}] Scanning {target}...")
 
-        result = scanner.scan_host(target)
+        try:
 
-        all_results.append(result)
+            result = scanner.scan_host(target)
+
+            all_results.append(result)
+
+            if result.get("state") == "up":
+
+                hosts_up += 1
+
+            else:
+
+                hosts_down += 1
+
+        except Exception as e:
+
+            error(f"Failed to scan {target}")
+
+            print(e)
+
+            hosts_down += 1
 
     success("\nMultiple host scan completed.")
 
-    # ---------------------------------------------
-    # Temporary Summary
-    # ---------------------------------------------
+    # ------------------------------------------------
+    # Generate Reports
+    # ------------------------------------------------
+
+    report = ReportGenerator(all_results)
+
+    reports = report.export_all()
+
+    # ------------------------------------------------
+    # Scan Summary
+    # ------------------------------------------------
 
     print("\n" + "=" * 60)
     print("SCAN SUMMARY")
     print("=" * 60)
 
-    print(f"Hosts Scanned : {len(all_results)}")
+    print(f"Hosts Scanned : {len(valid_targets)}")
+    print(f"Hosts Up      : {hosts_up}")
+    print(f"Hosts Down    : {hosts_down}")
+
+    print("\nREPORTS GENERATED")
+    print("-" * 60)
+
+    print(f"CSV  : {reports['csv']}")
+    print(f"JSON : {reports['json']}")
+    print(f"TXT  : {reports['txt']}")
 
     print("=" * 60)
 
