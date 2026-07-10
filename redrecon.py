@@ -12,12 +12,19 @@ Ezeduties
 
 import os
 
+import time
 from banner import print_banner
 from banner import success
 from banner import warning
 from banner import error
 
-from validator import is_valid_ip, validate_targets
+from validator import (
+    is_valid_ip,
+    validate_targets,
+    is_valid_network,
+    expand_network,
+)
+
 from scanner import Scanner
 from reports import ReportGenerator
 
@@ -237,6 +244,115 @@ def scan_multiple_hosts():
 # Display Menu
 # ---------------------------------------------------------
 
+def scan_network_range():
+    """
+    Scan every host inside a network range.
+    """
+
+    clear_screen()
+
+    print_banner()
+
+    print("\n" + "=" * 60)
+    print("NETWORK RANGE SCAN")
+    print("=" * 60)
+
+    network = input(
+        "\nEnter Network (Example: 10.0.9.0/24)\n\n> "
+    ).strip()
+
+    # ---------------------------------------------
+    # Validate Network
+    # ---------------------------------------------
+
+    if not is_valid_network(network):
+
+        error("\nInvalid network.")
+
+        input("\nPress ENTER to return...")
+
+        return
+
+    hosts = expand_network(network)
+
+    success("\nNetwork validated.")
+
+    print()
+
+    print("=" * 60)
+    print("NETWORK INFORMATION")
+    print("=" * 60)
+
+    print(f"Network      : {network}")
+    print(f"Total Hosts  : {len(hosts)}")
+
+    start_time = time.time()
+
+    scanner = Scanner()
+
+    all_results = []
+
+    hosts_up = 0
+
+    hosts_down = 0
+
+    print("\nStarting scan...\n")
+
+    for index, host in enumerate(hosts, start=1):
+
+        print(f"[{index}/{len(hosts)}] Scanning {host}...")
+
+        try:
+
+            result = scanner.scan_host(host)
+
+            all_results.append(result)
+
+            if result.get("state") == "up":
+
+                hosts_up += 1
+
+            else:
+
+                hosts_down += 1
+
+        except Exception as e:
+
+            error(f"Failed to scan {host}")
+
+            print(e)
+
+            hosts_down += 1
+
+    success("\nNetwork scan completed.")
+
+    elapsed_time = time.time() - start_time
+
+    report = ReportGenerator(all_results)
+
+    reports = report.export_all()
+
+    print("\n" + "=" * 60)
+    print("NETWORK RANGE SUMMARY")
+    print("=" * 60)
+
+    print(f"Network       : {network}")
+    print(f"Hosts Total   : {len(hosts)}")
+    print(f"Hosts Up      : {hosts_up}")
+    print(f"Hosts Down    : {hosts_down}")
+    print(f"Elapsed Time  : {elapsed_time:.2f} seconds")
+
+    print("\nREPORTS GENERATED")
+    print("-" * 60)
+
+    print(f"CSV  : {reports['csv']}")
+    print(f"JSON : {reports['json']}")
+    print(f"TXT  : {reports['txt']}")
+
+    print("=" * 60)
+
+    input("\nPress ENTER to return to the menu...")
+
 def display_menu():
     """
     Display the main menu.
@@ -282,8 +398,7 @@ def main():
 
         elif choice == "3":
 
-            print("\nNetwork Scanner (Coming in Part 4)")
-            input("\nPress ENTER to continue...")
+            scan_network_range()
 
         elif choice == "4":
 
