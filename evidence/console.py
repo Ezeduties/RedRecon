@@ -2,7 +2,7 @@
 ============================================================
 banner.py
 
-RedRecon v1.0.0
+EZENOX v1.0.0
 Professional Network Reconnaissance Framework
 
 Author      : Ezeduties

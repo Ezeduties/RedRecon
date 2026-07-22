@@ -1,14 +1,14 @@
 #!/bin/bash
 
 ####################################################
-# RedRecon Installer
+# EZENOX Installer
 # Version: 1.0
 # Author: Jossy Jos
 ####################################################
 
 echo
 echo "========================================"
-echo "      RedRecon Installation Script"
+echo "      EZENOX Installation Script"
 echo "========================================"
 echo
 
@@ -110,7 +110,7 @@ echo "[OK] Reports Directory Ready."
 
 echo
 echo "========================================"
-echo "RedRecon Installed Successfully!"
+echo "EZENOX Installed Successfully!"
 echo "========================================"
 echo
 echo "Activate Environment:"
@@ -119,5 +119,5 @@ echo "source venv/bin/activate"
 echo
 echo "Run:"
 echo
-echo "python3 redrecon.py"
+echo "python3 EZENOX.py"
 echo

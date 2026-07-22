@@ -1,6 +1,6 @@
 """
 =========================================================
-RedRecon Report Module
+EZENOX Report Module
 
 Generates professional reports from scan results.
 
@@ -25,7 +25,7 @@ import json
 # Local Imports
 # --------------------------------------------------------
 
-from utils import (
+from utils.helpers import (
     create_reports_directory,
     get_timestamp,
     save_text_file,
@@ -38,7 +38,7 @@ from utils import (
 
 class ReportGenerator:
     """
-    Generates reports from RedRecon scan results.
+    Generates reports from EZENOX scan results.
 
     Supports:
 
@@ -106,7 +106,7 @@ class ReportGenerator:
 
             for host in self.scan_results:
 
-                ip = host.get("ip", "")
+                ip = host.get("host", "")
 
                 hostname = host.get("hostname", "")
 
@@ -210,13 +210,13 @@ class ReportGenerator:
         report = []
 
         report.append("=" * 60)
-        report.append("REDRECON SCAN REPORT")
+        report.append("EZENOX SCAN REPORT")
         report.append("=" * 60)
         report.append("")
 
         for host in self.scan_results:
 
-            report.append(f"IP Address : {host.get('ip', '')}")
+            report.append(f"IP Address : {host.get('host', '')}")
             report.append(f"Hostname   : {host.get('hostname', '')}")
             report.append(f"State      : {host.get('state', '')}")
             report.append(f"OS         : {host.get('os', '')}")

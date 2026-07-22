@@ -1,20 +1,16 @@
 # Python
 __pycache__/
 *.py[cod]
-*.pyo
 
 # Virtual Environment
 venv/
 
-# Reports
-reports/
-*.csv
-*.json
-*.txt
-*.log
+# Scan Output
+reports/scan_reports/
 
-# VS Code
+# IDE
 .vscode/
+.idea/
 
-# macOS
+# Operating System
 .DS_Store

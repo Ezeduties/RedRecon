@@ -1,6 +1,6 @@
 """
 =========================================================
-RedRecon Utility Module
+EZENOX Utility Module
 
 Common helper functions used throughout the framework.
 
@@ -85,7 +85,7 @@ def create_reports_directory():
         Path object pointing to the reports directory.
     """
 
-    reports_dir = Path("reports")
+    reports_dir = Path("reports", "scan_reports")
 
     reports_dir.mkdir(exist_ok=True)
 

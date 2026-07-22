@@ -1,0 +1,12 @@
+# =========================================================
+# EZENOX v1.3.0
+# Professional Network Reconnaissance &
+# Vulnerability Assessment Framework
+#
+# Minimum Python Version:
+#   Python 3.11+
+# =========================================================
+
+python-nmap>=0.7.1
+requests>=2.32.0
+rich>=14.0.0
